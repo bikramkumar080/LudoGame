@@ -142,9 +142,6 @@ html, body {
 .base-green { background: var(--green); }
 .base-yellow { background: var(--yellow); }
 .base-blue { background: var(--blue); }
-/* white yard ring where each token rests in its base */
-.yard { display: grid; place-items: center; }
-.yard::after { content: ""; width: 78%; height: 78%; border-radius: 50%; background: rgba(255, 255, 255, 0.92); box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.18); }
 .center { background: #fbfaf6; }
 
 /* center hub triangles */
