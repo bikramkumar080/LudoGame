@@ -141,6 +141,30 @@ html, body {
 .base-green { background: var(--green); }
 .base-yellow { background: var(--yellow); }
 .base-blue { background: var(--blue); }
+
+/* Decorative base overlay: raised white panel + four colour sockets. */
+.base-deco {
+  position: absolute;
+  width: calc((6 / 15) * (100% - 12px));
+  height: calc((6 / 15) * (100% - 12px));
+  pointer-events: none;
+}
+.base-panel {
+  position: absolute; inset: 12%;
+  border-radius: 22%;
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.22),
+    inset 0 2px 3px rgba(255, 255, 255, 0.9),
+    inset 0 -4px 8px rgba(0, 0, 0, 0.06);
+}
+.base-socket {
+  position: absolute; width: 22%; height: 22%;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  background: var(--c);
+  box-shadow: inset 0 3px 6px rgba(0, 0, 0, 0.35),
+    0 1px 0 rgba(255, 255, 255, 0.6);
+}
 .center { background: #fbfaf6; }
 
 /* center hub triangles */

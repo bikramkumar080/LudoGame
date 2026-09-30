@@ -51,6 +51,31 @@ export function buildBoard(boardEl) {
     }
   }
 
+  // Decorative base panels (classic Ludo look): a raised white inner panel
+  // with four colour sockets where the pieces rest. Absolute overlays so they
+  // stay out of the grid flow.
+  const baseOrigins = { red: [0, 0], green: [0, 9], yellow: [9, 9], blue: [9, 0] };
+  const slotPct = [[27, 27], [73, 27], [27, 73], [73, 73]];
+  for (const color of COLORS) {
+    const [r0, c0] = baseOrigins[color];
+    const deco = document.createElement('div');
+    deco.className = `base-deco base-deco-${color}`;
+    deco.style.left = `calc(6px + (${c0} / 15) * (100% - 12px))`;
+    deco.style.top = `calc(6px + (${r0} / 15) * (100% - 12px))`;
+    deco.style.setProperty('--c', `var(--${color})`);
+    const panel = document.createElement('div');
+    panel.className = 'base-panel';
+    deco.appendChild(panel);
+    for (const [x, y] of slotPct) {
+      const s = document.createElement('div');
+      s.className = 'base-socket';
+      s.style.left = `${x}%`;
+      s.style.top = `${y}%`;
+      deco.appendChild(s);
+    }
+    boardEl.appendChild(deco);
+  }
+
   // Center home decoration (four triangles meeting in the middle).
   const hub = document.createElement('div');
   hub.className = 'home-center';
