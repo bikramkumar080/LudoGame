@@ -94,6 +94,24 @@ html, body {
 .switch input:checked + .slider::after { transform: translateX(22px); }
 .switch-text { font-weight: 600; }
 
+/* Per-color Human/Computer picker on the setup screen. */
+.player-modes { display: flex; flex-direction: column; gap: 8px; }
+.player-mode {
+  display: flex; align-items: center; gap: 10px;
+  height: 44px; padding: 0 12px; border-radius: 12px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--panel-border);
+  cursor: pointer;
+}
+.player-mode .dot { width: 16px; height: 16px; border-radius: 50%; flex: none; }
+.player-mode.red .dot { background: var(--red); }
+.player-mode.green .dot { background: var(--green); }
+.player-mode.yellow .dot { background: var(--yellow); }
+.player-mode.blue .dot { background: var(--blue); }
+.player-mode .name { font-weight: 700; }
+.player-mode .cpu-check { margin-left: auto; width: 18px; height: 18px; accent-color: var(--blue); cursor: pointer; }
+.player-mode .cpu-label { font-size: 13px; opacity: 0.75; }
+
 /* ---------- Buttons ---------- */
 .btn { font-family: inherit; border: none; border-radius: 12px; padding: 12px 18px; font-size: 16px; font-weight: 700; cursor: pointer; transition: transform 0.12s ease, box-shadow 0.12s ease, filter 0.12s; color: #fff; }
 .btn:active { transform: scale(0.96); }

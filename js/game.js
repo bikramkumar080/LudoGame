@@ -6,7 +6,7 @@ import {
   FINISH, mainIndexFor,
 } from './board.js';
 
-export function createGame(playerCount, autoRoll) {
+export function createGame(playerCount, autoRoll, players = null) {
   const colors = PLAYER_SETS[playerCount];
   // Preserve clockwise turn order but keep only active colors.
   const order = TURN_ORDER.filter((c) => colors.includes(c));
@@ -18,9 +18,14 @@ export function createGame(playerCount, autoRoll) {
     }
   }
 
+  // Who controls each color: 'human' (default) or 'cpu'.
+  const modes = {};
+  for (const c of order) modes[c] = players?.[c] === 'cpu' ? 'cpu' : 'human';
+
   return {
     order,
     autoRoll,
+    players: modes,
     tokens,
     turnIdx: 0,            // index into `order`
     dice: null,           // last rolled value, or null

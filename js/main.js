@@ -5,6 +5,8 @@ import {
   createGame, currentColor, roll, legalTokens, targetPos,
   applyCapture, hasWon, nextTurn, tokensOf, soleMoveToken,
 } from './game.js';
+import { chooseMove, isCpuTurn } from './ai.js';
+import { PLAYER_SETS } from './board.js';
 import { sound } from './sound.js';
 import { createVoice } from './voice.js';
 
@@ -16,6 +18,7 @@ const els = {
   board: $('#board'),
   startBtn: $('#startBtn'),
   autoRoll: $('#autoRoll'),
+  playerModes: $('#playerModes'),
   turnInfo: $('#turnInfo'),
   die: $('#die'),
   rollBtn: $('#rollBtn'),
@@ -105,9 +108,10 @@ function beginTurn() {
   g.phase = 'rolling';
   g.dice = null;
   renderDie(null);
-  g.message = g.autoRoll ? 'Rolling…' : 'Tap Roll to throw the dice.';
+  const auto = g.autoRoll || isCpuTurn(g);
+  g.message = auto ? 'Rolling…' : 'Tap Roll to throw the dice.';
   render();
-  if (g.autoRoll) {
+  if (auto) {
     busy = true;
     setTimeout(() => { busy = false; doRoll(); }, 550);
   }
@@ -161,6 +165,18 @@ function resolveRoll() {
   }
 
   const color = currentColor(g);
+
+  // Computer player: pick and play a move on its own.
+  if (isCpuTurn(g)) {
+    const pick = chooseMove(g);
+    g.phase = 'moving';
+    g.message = `${cap(color)} (computer) rolled ${g.dice}.`;
+    render();
+    busy = true;
+    setTimeout(() => { busy = false; performMove(pick); }, 550);
+    return;
+  }
+
   const sole = soleMoveToken(g);
   if (sole) {
     // No real choice — play it for the user after a beat so they see the roll.
@@ -231,7 +247,7 @@ function performMove(token) {
       g.message += ' Rolled a 6 — go again!';
       renderDie(null);
       render();
-      if (g.autoRoll) {
+      if (g.autoRoll || isCpuTurn(g)) {
         busy = true;
         setTimeout(() => { busy = false; doRoll(); }, 650);
       }
@@ -276,11 +292,36 @@ function showWin(color) {
   els.winScreen.classList.remove('hidden');
 }
 
+// Setup screen: render a Human/Computer toggle for each active color, based on
+// the selected player count. Rebuilt whenever the count changes.
+function buildPlayerModes() {
+  const count = Number(document.querySelector('input[name="players"]:checked').value);
+  const colors = PLAYER_SETS[count];
+  els.playerModes.innerHTML = '';
+  for (const color of colors) {
+    const row = document.createElement('label');
+    row.className = `player-mode ${color}`;
+    row.innerHTML =
+      `<span class="dot"></span><span class="name">${cap(color)}</span>` +
+      `<input type="checkbox" class="cpu-check" data-color="${color}" />` +
+      `<span class="cpu-label">Computer</span>`;
+    els.playerModes.appendChild(row);
+  }
+}
+
+function readPlayerModes() {
+  const players = {};
+  els.playerModes.querySelectorAll('.cpu-check').forEach((cb) => {
+    players[cb.dataset.color] = cb.checked ? 'cpu' : 'human';
+  });
+  return players;
+}
+
 function startGame() {
   sound.init();
   sound.click();
   const count = Number(document.querySelector('input[name="players"]:checked').value);
-  g = createGame(count, els.autoRoll.checked);
+  g = createGame(count, els.autoRoll.checked, readPlayerModes());
   layer = buildBoard(els.board);
   els.setup.classList.add('hidden');
   els.game.classList.remove('hidden');
@@ -296,6 +337,9 @@ function resetToSetup() {
 }
 
 els.startBtn.addEventListener('click', startGame);
+document.querySelectorAll('input[name="players"]').forEach((r) =>
+  r.addEventListener('change', buildPlayerModes));
+buildPlayerModes();
 els.rollBtn.addEventListener('click', () => { sound.init(); doRoll(); });
 els.newGameBtn.addEventListener('click', () => {
   // Confirm mid-game so an accidental tap can't wipe a game in progress.
