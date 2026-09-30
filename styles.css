@@ -282,3 +282,27 @@ html, body {
 @media (prefers-reduced-motion: reduce) {
   * { animation-duration: 0.001ms !important; transition-duration: 0.001ms !important; }
 }
+
+/* Phones (portrait): keep everything on one screen — no page scroll. */
+@media (max-width: 640px) {
+  .app { gap: 8px; padding: 8px; justify-content: flex-start; }
+  .board { width: min(96vw, 54vh); }
+  .hud {
+    width: min(96vw, 480px);
+    padding: 10px 14px;
+    gap: 8px;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+  }
+  .hud-top { order: -1; width: 100%; margin: 0; }
+  .turn-info { font-size: 17px; min-height: 20px; width: 100%; }
+  .die { width: 52px; height: 52px; padding: 8px; gap: 3px; border-radius: 12px; }
+  .pip { width: 8px; height: 8px; }
+  .roll-btn { width: auto; padding: 9px 18px; }
+  .message { font-size: 12px; min-height: 0; width: 100%; }
+  .voice-hint { width: 100%; }
+  .newgame-btn { width: auto; margin-top: 0; padding: 8px 14px; }
+}
+
