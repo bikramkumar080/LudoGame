@@ -41,11 +41,15 @@
       <div id="board" class="board" aria-label="Ludo board"></div>
 
       <aside class="hud">
-        <button id="muteBtn" class="btn btn-ghost mute-btn" aria-label="Mute">🔊</button>
+        <div class="hud-top">
+          <button id="voiceBtn" class="btn btn-ghost icon-btn" aria-label="Enable voice control">🎤</button>
+          <button id="muteBtn" class="btn btn-ghost icon-btn" aria-label="Mute">🔊</button>
+        </div>
         <div id="turnInfo" class="turn-info">&nbsp;</div>
         <div id="die" class="die" aria-label="Dice"></div>
         <button id="rollBtn" class="btn btn-primary roll-btn">Roll</button>
         <div id="message" class="message"></div>
+        <div id="voiceHint" class="voice-hint"></div>
         <button id="newGameBtn" class="btn btn-ghost newgame-btn">New Game</button>
       </aside>
     </section>

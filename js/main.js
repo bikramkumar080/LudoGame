@@ -3,9 +3,10 @@
 import { buildBoard, drawTokens } from './render.js';
 import {
   createGame, currentColor, roll, legalTokens, targetPos,
-  applyCapture, hasWon, nextTurn,
+  applyCapture, hasWon, nextTurn, tokensOf,
 } from './game.js';
 import { sound } from './sound.js';
+import { createVoice } from './voice.js';
 
 const $ = (sel) => document.querySelector(sel);
 
@@ -21,6 +22,8 @@ const els = {
   message: $('#message'),
   newGameBtn: $('#newGameBtn'),
   muteBtn: $('#muteBtn'),
+  voiceBtn: $('#voiceBtn'),
+  voiceHint: $('#voiceHint'),
   winScreen: $('#winScreen'),
   winText: $('#winText'),
   playAgainBtn: $('#playAgainBtn'),
@@ -29,6 +32,40 @@ const els = {
 let g = null;
 let layer = null;
 let busy = false; // true while a timer/animation is running
+
+const setHint = (text) => { els.voiceHint.textContent = text; };
+
+// Hands-free voice control + spoken replies.
+const voice = createVoice({
+  onCommand: (cmd) => {
+    if (!g) return;
+    if (cmd.type === 'roll') {
+      if (!g.autoRoll && g.phase === 'rolling' && !busy) doRoll();
+      return;
+    }
+    setHint(`Heard: “${cmd.number}”`);
+    moveByNumber(cmd.number);
+  },
+  onStatus: (s) => {
+    if (s.state === 'listening') setHint('🎙️ Listening… say a number 1–4');
+    else if (s.state === 'denied') { setHint('Mic blocked — allow it in your browser.'); voiceOff(); }
+    else if (s.state === 'off') setHint('');
+    else if (s.state === 'error' && s.detail && s.detail !== 'no-speech') setHint(`Mic: ${s.detail}`);
+  },
+});
+
+function voiceOn() {
+  if (!voice.enable()) return;
+  els.voiceBtn.classList.add('on');
+  els.voiceBtn.textContent = '🎙️';
+  els.voiceBtn.setAttribute('aria-label', 'Disable voice control');
+}
+function voiceOff() {
+  voice.disable();
+  els.voiceBtn.classList.remove('on');
+  els.voiceBtn.textContent = '🎤';
+  els.voiceBtn.setAttribute('aria-label', 'Enable voice control');
+}
 
 const PIPS = {
   1: [4], 2: [0, 8], 3: [0, 4, 8], 4: [0, 2, 6, 8],
@@ -124,7 +161,9 @@ function resolveRoll() {
   }
 
   g.phase = 'moving';
-  g.message = `${cap(currentColor(g))} rolled ${g.dice} — tap a glowing piece.`;
+  const color = currentColor(g);
+  g.message = `${cap(color)} rolled ${g.dice} — ${voice.enabled ? 'say a piece number, or tap' : 'tap'} a glowing piece.`;
+  if (voice.enabled) voice.speak(`${color} rolled ${g.dice}. Say a piece number.`);
   render();
 }
 
@@ -140,21 +179,29 @@ function animateMove(token, dest, done) {
   stepOnce();
 }
 
-function onTokenClick(token) {
-  if (busy || g.phase !== 'moving') return;
-  if (token.color !== currentColor(g)) return;
+// Perform a validated move for `token`. Shared by tap and voice.
+// Returns false if the move is illegal.
+function performMove(token) {
   const dest = targetPos(g, token, g.dice);
-  if (dest === null) return;
+  if (dest === null) return false;
+  const num = token.slot + 1;
 
   busy = true;
+  render();
+  voice.speak(`Moving piece ${num}`);
   animateMove(token, dest, () => {
     const { captured, finished } = applyCapture(g, token);
     const parts = [];
     if (captured.length) {
       sound.capture();
       parts.push(`Captured ${captured.map((t) => cap(t.color)).join(', ')}!`);
+      voice.speak(`Piece ${num} knocked out ${captured.map((t) => t.color).join(' and ')}`);
     }
-    if (finished) { sound.finish(); parts.push('A token reached home!'); }
+    if (finished) {
+      sound.finish();
+      parts.push('A token reached home!');
+      voice.speak(`Piece ${num} is home!`);
+    }
     g.message = parts.join(' ');
     busy = false;
     render(); // slides any captured tokens back to their base
@@ -163,6 +210,7 @@ function onTokenClick(token) {
       g.phase = 'over';
       g.winner = token.color;
       sound.win();
+      voice.speak(`${token.color} wins!`);
       render();
       showWin(token.color);
       return;
@@ -182,6 +230,26 @@ function onTokenClick(token) {
     }
     scheduleNext();
   });
+  return true;
+}
+
+function onTokenClick(token) {
+  if (busy || g.phase !== 'moving') return;
+  if (token.color !== currentColor(g)) return;
+  performMove(token);
+}
+
+// Voice command: move the current player's piece #n (1-4).
+function moveByNumber(n) {
+  if (g.phase !== 'moving' || busy) { voice.speak('Wait for your move'); return; }
+  const token = tokensOf(g, currentColor(g)).find((t) => t.slot === n - 1);
+  if (!token) return;
+  if (targetPos(g, token, g.dice) === null) {
+    voice.speak(`Piece ${n} can't move`);
+    setHint(`Piece ${n} can’t move`);
+    return;
+  }
+  performMove(token);
 }
 
 function scheduleNext() {
@@ -232,3 +300,12 @@ els.muteBtn.addEventListener('click', () => {
   els.muteBtn.textContent = m ? '🔇' : '🔊';
   els.muteBtn.setAttribute('aria-label', m ? 'Unmute' : 'Mute');
 });
+els.voiceBtn.addEventListener('click', () => {
+  if (!voice.supported) { setHint('Voice control isn’t supported in this browser.'); return; }
+  sound.init();
+  if (voice.enabled) voiceOff(); else voiceOn();
+});
+if (!voice.supported) {
+  els.voiceBtn.disabled = true;
+  els.voiceBtn.title = 'Voice control not supported in this browser';
+}

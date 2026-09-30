@@ -12,6 +12,11 @@ deploys straight to GitHub Pages.
 - **Auto-roll / manual-roll toggle** on the setup screen:
   - *Auto-roll:* the dice throws itself each turn — you just tap a piece.
   - *Manual:* tap **Roll**, then tap a piece.
+- **Voice control (hands-free):** turn on the 🎤 button and say a piece
+  number — "move two", "number 3", or just "two" — and that piece moves. The
+  pieces **talk back** ("Moving piece two!", "Piece 3 is home!"). Each piece is
+  numbered 1–4. Needs a browser with the Web Speech API (Chrome/Edge); the button
+  is disabled where unsupported.
 - Animated tumbling dice and step-by-step token movement.
 - Synthesized sound effects (Web Audio — no audio files to host); mute button.
 - Fully responsive for phone and laptop.
@@ -24,6 +29,14 @@ deploys straight to GitHub Pages.
    roll a **6**. Until then, turns pass automatically.
 3. When one of your pieces **glows**, tap it to move.
 4. First player to get all **4 pieces home** wins.
+
+### Voice control
+
+Each piece is numbered **1–4**. Tap 🎤 to enable hands-free voice (grant mic
+permission once). When it's your move, say the piece number — "move two",
+"number 3", or just "two" — and it moves by the dice value if legal. The pieces
+reply out loud. Works in Chrome/Edge (Web Speech API); tapping still works
+everywhere.
 
 ### Rules implemented
 

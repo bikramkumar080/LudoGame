@@ -26,6 +26,12 @@ in Node without a browser.
   token layer; `drawTokens(...)` positions tokens (elements are **reused** so CSS
   transitions animate movement).
 - `js/sound.js` — Web-Audio synthesized effects. No audio files.
+- `js/voice.js` — hands-free voice control (Web Speech `SpeechRecognition`) and
+  spoken replies (`speechSynthesis`). `parseCommand(transcript)` is pure and
+  unit-tested in `test/voice.test.js`; `createVoice(...)` touches browser APIs and
+  is feature-detected (degrades gracefully; the 🎤 button disables where
+  unsupported). Pieces are numbered 1–4 (token `slot + 1`); "move 2" moves the
+  current player's piece with `slot === 1`.
 - `js/main.js` — the controller: setup screen, the turn loop, timers, and UI wiring.
   This is the only file that owns the `busy` flag and the `setTimeout`/`setInterval`
   choreography.

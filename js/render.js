@@ -117,7 +117,9 @@ export function drawTokens(layer, g, movableIds, onTokenClick) {
         el = document.createElement('button');
         el.type = 'button';
         el.dataset.id = t.id;
-        el.appendChild(document.createElement('span')); // inner disc
+        const disc = document.createElement('span'); // inner disc
+        disc.textContent = t.slot + 1;                // piece number 1-4
+        el.appendChild(disc);
         layer.appendChild(el);
         layer._els.set(t.id, el);
       }
