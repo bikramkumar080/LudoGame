@@ -163,7 +163,6 @@ function resolveRoll() {
   g.phase = 'moving';
   const color = currentColor(g);
   g.message = `${cap(color)} rolled ${g.dice} — ${voice.enabled ? 'say a piece number, or tap' : 'tap'} a glowing piece.`;
-  if (voice.enabled) voice.speak(`${color} rolled ${g.dice}. Say a piece number.`);
   render();
 }
 
