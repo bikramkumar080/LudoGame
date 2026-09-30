@@ -9,6 +9,7 @@ import { chooseMove, isCpuTurn } from './ai.js';
 import { PLAYER_SETS } from './board.js';
 import { sound } from './sound.js';
 import { createVoice } from './voice.js';
+import * as storage from './storage.js';
 
 const $ = (sel) => document.querySelector(sel);
 
@@ -17,6 +18,7 @@ const els = {
   game: $('#game'),
   board: $('#board'),
   startBtn: $('#startBtn'),
+  resumeBtn: $('#resumeBtn'),
   autoRoll: $('#autoRoll'),
   playerModes: $('#playerModes'),
   turnInfo: $('#turnInfo'),
@@ -113,6 +115,7 @@ function beginTurn() {
   const auto = g.autoRoll || isCpuTurn(g);
   g.message = auto ? 'Rolling…' : 'Tap Roll to throw the dice.';
   render();
+  storage.save(g); // a clean per-turn resume point
   if (auto) {
     busy = true;
     setTimeout(() => { busy = false; doRoll(); }, 550);
@@ -302,6 +305,7 @@ function scheduleNext() {
 }
 
 function showResults() {
+  storage.clear(); // finished game — nothing to resume
   const rows = g.ranking.map((color, i) =>
     `<div class="place-row ${color}">` +
       `<span class="medal">${MEDALS[i] || '🏅'}</span>` +
@@ -353,17 +357,41 @@ function startGame() {
   beginTurn();
 }
 
+function resumeGame() {
+  const saved = storage.load();
+  if (!saved) return;
+  sound.init();
+  sound.click();
+  g = saved;
+  layer = buildBoard(els.board);
+  els.setup.classList.add('hidden');
+  els.game.classList.remove('hidden');
+  els.winScreen.classList.add('hidden');
+  if (g.phase === 'over') { showResults(); return; }
+  beginTurn(); // resume at the turn boundary we saved
+}
+
 function resetToSetup() {
   sound.click();
+  storage.clear();
   els.game.classList.add('hidden');
   els.winScreen.classList.add('hidden');
   els.setup.classList.remove('hidden');
+  refreshResumeButton();
+}
+
+// Show the Resume button on the setup screen only when a save exists.
+function refreshResumeButton() {
+  const saved = storage.load();
+  els.resumeBtn.classList.toggle('hidden', !(saved && saved.phase !== 'over'));
 }
 
 els.startBtn.addEventListener('click', startGame);
+els.resumeBtn.addEventListener('click', resumeGame);
 document.querySelectorAll('input[name="players"]').forEach((r) =>
   r.addEventListener('change', buildPlayerModes));
 buildPlayerModes();
+refreshResumeButton();
 els.rollBtn.addEventListener('click', () => { sound.init(); doRoll(); });
 els.newGameBtn.addEventListener('click', () => {
   // Confirm mid-game so an accidental tap can't wipe a game in progress.

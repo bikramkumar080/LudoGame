@@ -51,6 +51,7 @@ html, body {
 .dot-green { background: var(--green); }
 
 .hidden { display: none !important; }
+#resumeBtn { width: 100%; margin-top: 10px; }
 
 /* ---------- Panels / setup ---------- */
 .panel {
