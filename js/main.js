@@ -3,7 +3,7 @@
 import { buildBoard, drawTokens } from './render.js';
 import {
   createGame, currentColor, roll, legalTokens, targetPos,
-  applyCapture, hasWon, nextTurn, tokensOf,
+  applyCapture, hasWon, nextTurn, tokensOf, soleMoveToken,
 } from './game.js';
 import { sound } from './sound.js';
 import { createVoice } from './voice.js';
@@ -160,8 +160,19 @@ function resolveRoll() {
     return;
   }
 
-  g.phase = 'moving';
   const color = currentColor(g);
+  const sole = soleMoveToken(g);
+  if (sole) {
+    // No real choice — play it for the user after a beat so they see the roll.
+    g.phase = 'moving';
+    g.message = `${cap(color)} rolled ${g.dice} — moving piece ${sole.slot + 1}.`;
+    render();
+    busy = true;
+    setTimeout(() => { busy = false; performMove(sole); }, 500);
+    return;
+  }
+
+  g.phase = 'moving';
   g.message = `${cap(color)} rolled ${g.dice} — ${voice.enabled ? 'say a piece number, or tap' : 'tap'} a glowing piece.`;
   render();
 }

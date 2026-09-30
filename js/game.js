@@ -88,6 +88,18 @@ export function legalTokens(g) {
   return tokensOf(g, color).filter((t) => targetPos(g, t, g.dice) !== null);
 }
 
+// If every legal move is equivalent — all movable tokens share one position,
+// so it makes no difference which you pick — return the token to move
+// automatically; otherwise null (the player has a real choice to make).
+// Covers: only one piece out, all four in base (a 6), the last piece left,
+// and two-or-more pieces stacked on the same cell.
+export function soleMoveToken(g) {
+  const movers = legalTokens(g);
+  if (movers.length === 0) return null;
+  const positions = new Set(movers.map((t) => t.pos));
+  return positions.size === 1 ? movers[0] : null;
+}
+
 // Apply a move. Assumes the move is legal. Handles capture. Returns info
 // about what happened so the caller can message/animate.
 export function moveToken(g, token) {

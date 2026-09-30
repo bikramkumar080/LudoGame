@@ -8,7 +8,7 @@ import assert from 'node:assert/strict';
 import { START_INDEX, SAFE_INDICES, FINISH } from '../js/board.js';
 import {
   createGame, currentColor, roll, targetPos, legalTokens,
-  applyCapture, moveToken, hasWon, nextTurn,
+  applyCapture, moveToken, hasWon, nextTurn, soleMoveToken,
 } from '../js/game.js';
 
 const tok = (g, id) => g.tokens.find((t) => t.id === id);
@@ -160,6 +160,34 @@ test('hasWon is true only when all four tokens are home', () => {
   assert.ok(hasWon(g, 'red'));
   reds[0].pos = 40;
   assert.ok(!hasWon(g, 'red'));
+});
+
+// ---------- auto-move (no real choice) ----------
+test('soleMoveToken auto-plays when every legal move is equivalent', () => {
+  // All four in base + a 6: bringing any one out is the same → auto.
+  let g = createGame(4, true); g.dice = 6;
+  assert.ok(soleMoveToken(g), 'all-in-base on a 6 should auto-move');
+
+  // No legal move at all → nothing to auto-play.
+  g = createGame(4, true); g.dice = 3;
+  assert.equal(soleMoveToken(g), null);
+
+  // Exactly one piece is out → it moves automatically.
+  g = createGame(4, true); g.dice = 3;
+  tok(g, 'red-0').pos = 10;
+  assert.equal(soleMoveToken(g)?.id, 'red-0');
+
+  // Two pieces stacked on the same cell, nothing else movable → auto.
+  g = createGame(4, true); g.dice = 3;
+  tok(g, 'red-0').pos = 10; tok(g, 'red-1').pos = 10;
+  assert.ok(soleMoveToken(g), 'a stack with no other option should auto-move');
+});
+
+test('soleMoveToken returns null when there is a genuine choice', () => {
+  // Two stacked on one cell AND another piece elsewhere → the player chooses.
+  const g = createGame(4, true); g.dice = 3;
+  tok(g, 'red-0').pos = 10; tok(g, 'red-1').pos = 10; tok(g, 'red-2').pos = 20;
+  assert.equal(soleMoveToken(g), null);
 });
 
 // ---------- turn advancement ----------
