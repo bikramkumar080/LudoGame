@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="theme-color" content="#1a1436" />
+  <title>Ludo</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="app">
+    <h1 class="title">L<span class="dot dot-red"></span>d<span class="dot dot-green"></span></h1>
+
+    <!-- SETUP SCREEN -->
+    <section id="setup" class="panel setup">
+      <h2>New Game</h2>
+
+      <div class="field">
+        <label class="field-label">Players</label>
+        <div class="segmented" role="radiogroup" aria-label="Number of players">
+          <label><input type="radio" name="players" value="2" /><span>2</span></label>
+          <label><input type="radio" name="players" value="3" /><span>3</span></label>
+          <label><input type="radio" name="players" value="4" checked /><span>4</span></label>
+        </div>
+      </div>
+
+      <div class="field">
+        <label class="field-label" for="autoRoll">Dice</label>
+        <label class="switch">
+          <input type="checkbox" id="autoRoll" checked />
+          <span class="slider"></span>
+          <span class="switch-text">Auto-roll</span>
+        </label>
+        <p class="hint">On: dice rolls itself each turn — you just pick a token.
+          Off: tap <b>Roll</b> first.</p>
+      </div>
+
+      <button id="startBtn" class="btn btn-primary">Start Game</button>
+    </section>
+
+    <!-- GAME SCREEN -->
+    <section id="game" class="game hidden">
+      <div id="board" class="board" aria-label="Ludo board"></div>
+
+      <aside class="hud">
+        <button id="muteBtn" class="btn btn-ghost mute-btn" aria-label="Mute">🔊</button>
+        <div id="turnInfo" class="turn-info">&nbsp;</div>
+        <div id="die" class="die" aria-label="Dice"></div>
+        <button id="rollBtn" class="btn btn-primary roll-btn">Roll</button>
+        <div id="message" class="message"></div>
+        <button id="newGameBtn" class="btn btn-ghost newgame-btn">New Game</button>
+      </aside>
+    </section>
+
+    <!-- WIN OVERLAY -->
+    <div id="winScreen" class="win-screen hidden">
+      <div class="win-card">
+        <div id="winText" class="win-text"></div>
+        <button id="playAgainBtn" class="btn btn-primary">Play Again</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>
