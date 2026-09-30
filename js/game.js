@@ -31,6 +31,7 @@ export function createGame(playerCount, autoRoll, players = null) {
     dice: null,           // last rolled value, or null
     phase: 'rolling',     // 'rolling' | 'moving' | 'over'
     sixStreak: 0,         // consecutive 6s this turn
+    ranking: [],          // colors in the order they finished (1st, 2nd, …)
     winner: null,
     message: '',
   };
@@ -144,9 +145,21 @@ export function hasWon(g, color) {
   return tokensOf(g, color).every((t) => t.pos === FINISH);
 }
 
-// Advance to the next active player and reset per-turn state.
+// Colors still in the game (not yet finished). When only one remains, the
+// game is over and that color takes the last placement.
+export function remainingPlayers(g) {
+  return g.order.filter((c) => !g.ranking.includes(c));
+}
+
+// Advance to the next active player and reset per-turn state. Skips colors
+// that have already finished (they no longer take turns).
 export function nextTurn(g) {
-  g.turnIdx = (g.turnIdx + 1) % g.order.length;
+  do {
+    g.turnIdx = (g.turnIdx + 1) % g.order.length;
+  } while (
+    g.ranking.includes(g.order[g.turnIdx]) &&
+    g.ranking.length < g.order.length
+  );
   g.dice = null;
   g.sixStreak = 0;
   g.phase = 'rolling';

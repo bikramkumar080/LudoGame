@@ -288,6 +288,25 @@ html, body {
 .win-text.red { color: #ff8189; } .win-text.green { color: #5fe6d8; }
 .win-text.yellow { color: #ffd166; } .win-text.blue { color: #93a6ff; }
 
+/* Final placements board. */
+.win-title { font-size: 30px; font-weight: 900; margin-bottom: 18px; }
+.win-title.red { color: #ff8189; } .win-title.green { color: #5fe6d8; }
+.win-title.yellow { color: #ffd166; } .win-title.blue { color: #93a6ff; }
+.places { display: flex; flex-direction: column; gap: 8px; margin-bottom: 8px; }
+.place-row {
+  display: flex; align-items: center; gap: 12px;
+  padding: 8px 16px; border-radius: 12px; font-size: 18px; font-weight: 700;
+  background: rgba(255, 255, 255, 0.06);
+  border-left: 4px solid transparent;
+}
+.place-row.red { border-left-color: var(--red); }
+.place-row.green { border-left-color: var(--green); }
+.place-row.yellow { border-left-color: var(--yellow); }
+.place-row.blue { border-left-color: var(--blue); }
+.place-row .medal { font-size: 22px; }
+.place-row .place-ord { opacity: 0.7; min-width: 34px; text-align: left; }
+.place-row .place-name { margin-left: auto; }
+
 /* ---------- Animations ---------- */
 @keyframes rise { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: none; } }
 @keyframes fade { from { opacity: 0; } to { opacity: 1; } }

@@ -8,7 +8,7 @@ import assert from 'node:assert/strict';
 import { START_INDEX, SAFE_INDICES, FINISH } from '../js/board.js';
 import {
   createGame, currentColor, roll, targetPos, legalTokens,
-  applyCapture, moveToken, hasWon, nextTurn, soleMoveToken,
+  applyCapture, moveToken, hasWon, nextTurn, soleMoveToken, remainingPlayers,
 } from '../js/game.js';
 
 const tok = (g, id) => g.tokens.find((t) => t.id === id);
@@ -188,6 +188,33 @@ test('soleMoveToken returns null when there is a genuine choice', () => {
   const g = createGame(4, true); g.dice = 3;
   tok(g, 'red-0').pos = 10; tok(g, 'red-1').pos = 10; tok(g, 'red-2').pos = 20;
   assert.equal(soleMoveToken(g), null);
+});
+
+// ---------- placements: keep playing for 2nd/3rd/4th ----------
+test('remainingPlayers excludes finished colors', () => {
+  const g = createGame(4, true);
+  assert.deepEqual(remainingPlayers(g), ['red', 'green', 'yellow', 'blue']);
+  g.ranking = ['red', 'green'];
+  assert.deepEqual(remainingPlayers(g), ['yellow', 'blue']);
+});
+
+test('nextTurn skips colors that have already finished', () => {
+  const g = createGame(4, true); // red, green, yellow, blue
+  g.ranking = ['green'];         // green is done
+  assert.equal(currentColor(g), 'red'); // turnIdx 0
+  nextTurn(g);
+  assert.equal(currentColor(g), 'yellow', 'green is skipped');
+  nextTurn(g);
+  assert.equal(currentColor(g), 'blue');
+  nextTurn(g);
+  assert.equal(currentColor(g), 'red', 'wraps, still skipping green');
+});
+
+test('nextTurn does not hang when all colors have finished', () => {
+  const g = createGame(2, true); // red, yellow
+  g.ranking = ['red', 'yellow'];
+  nextTurn(g); // must terminate rather than loop forever
+  assert.ok(g.order.includes(currentColor(g)));
 });
 
 // ---------- turn advancement ----------

@@ -3,7 +3,7 @@
 import { buildBoard, drawTokens } from './render.js';
 import {
   createGame, currentColor, roll, legalTokens, targetPos,
-  applyCapture, hasWon, nextTurn, tokensOf, soleMoveToken,
+  applyCapture, hasWon, nextTurn, tokensOf, soleMoveToken, remainingPlayers,
 } from './game.js';
 import { chooseMove, isCpuTurn } from './ai.js';
 import { PLAYER_SETS } from './board.js';
@@ -87,6 +87,8 @@ function renderDie(value) {
 }
 
 const cap = (s) => s[0].toUpperCase() + s.slice(1);
+const ordinal = (n) => (['', '1st', '2nd', '3rd', '4th'][n] || `${n}th`);
+const MEDALS = ['🥇', '🥈', '🥉', '🏅'];
 
 function render() {
   const color = currentColor(g);
@@ -232,12 +234,25 @@ function performMove(token) {
     render(); // slides any captured tokens back to their base
 
     if (hasWon(g, token.color)) {
-      g.phase = 'over';
-      g.winner = token.color;
-      sound.win();
-      voice.speak(`${token.color} wins!`);
+      if (!g.ranking.includes(token.color)) g.ranking.push(token.color);
+      sound.finish();
+      voice.speak(`${token.color} finished in ${ordinal(g.ranking.length)} place!`);
+
+      // Game over once only one player is left — they take last place.
+      if (remainingPlayers(g).length <= 1) {
+        const last = remainingPlayers(g)[0];
+        if (last) g.ranking.push(last);
+        g.phase = 'over';
+        g.winner = g.ranking[0];
+        sound.win();
+        render();
+        showResults();
+        return;
+      }
+
+      g.message = `${cap(token.color)} is all home — ${ordinal(g.ranking.length)} place! Play continues.`;
       render();
-      showWin(token.color);
+      scheduleNext();
       return;
     }
 
@@ -286,9 +301,18 @@ function scheduleNext() {
   }, 750);
 }
 
-function showWin(color) {
-  els.winText.textContent = `${cap(color)} wins! 🎉`;
-  els.winText.className = `win-text ${color}`;
+function showResults() {
+  const rows = g.ranking.map((color, i) =>
+    `<div class="place-row ${color}">` +
+      `<span class="medal">${MEDALS[i] || '🏅'}</span>` +
+      `<span class="place-ord">${ordinal(i + 1)}</span>` +
+      `<span class="place-name">${cap(color)}</span>` +
+    `</div>`
+  ).join('');
+  els.winText.innerHTML =
+    `<div class="win-title ${g.winner}">${cap(g.winner)} wins! 🎉</div>` +
+    `<div class="places">${rows}</div>`;
+  els.winText.className = 'win-text';
   els.winScreen.classList.remove('hidden');
 }
 
