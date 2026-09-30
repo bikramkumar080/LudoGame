@@ -3,18 +3,18 @@
 // for talking back). Feature-detected; degrades gracefully if unsupported.
 
 const NUMBER_WORDS = {
-  one: 1, won: 1, want: 1,
-  two: 2, to: 2, too: 2, tu: 2,
-  three: 3, tree: 3, free: 3,
-  four: 4, for: 4, fore: 4, far: 4,
+  one: 1, won: 1, want: 1, wan: 1, juan: 1, ones: 1, wun: 1,
+  two: 2, to: 2, too: 2, tu: 2, dew: 2,
+  three: 3, tree: 3, free: 3, thee: 3, tri: 3,
+  four: 4, for: 4, fore: 4, far: 4, ford: 4, foe: 4,
 };
 
 // Parse a spoken phrase into a command, or null.
 export function parseCommand(transcript) {
   const t = transcript.toLowerCase();
   if (/\broll\b/.test(t)) return { type: 'roll' };
-  const digit = t.match(/\b([1-4])\b/);
-  if (digit) return { type: 'move', number: Number(digit[1]) };
+  const digit = t.match(/[1-4]/); // any 1-4 digit anywhere (e.g. "1", "piece 1")
+  if (digit) return { type: 'move', number: Number(digit[0]) };
   for (const [word, n] of Object.entries(NUMBER_WORDS)) {
     if (new RegExp(`\\b${word}\\b`).test(t)) return { type: 'move', number: n };
   }
@@ -50,7 +50,9 @@ export function createVoice({ onCommand, onStatus } = {}) {
     r.onresult = (e) => {
       for (let i = e.resultIndex; i < e.results.length; i++) {
         if (!e.results[i].isFinal) continue;
-        const cmd = parseCommand(e.results[i][0].transcript);
+        const transcript = e.results[i][0].transcript.trim();
+        onStatus?.({ state: 'heard', detail: transcript });
+        const cmd = parseCommand(transcript);
         if (cmd) onCommand?.(cmd);
       }
     };

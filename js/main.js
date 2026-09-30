@@ -43,11 +43,11 @@ const voice = createVoice({
       if (!g.autoRoll && g.phase === 'rolling' && !busy) doRoll();
       return;
     }
-    setHint(`Heard: “${cmd.number}”`);
     moveByNumber(cmd.number);
   },
   onStatus: (s) => {
     if (s.state === 'listening') setHint('🎙️ Listening… say a number 1–4');
+    else if (s.state === 'heard') setHint(`Heard: “${s.detail}”`);
     else if (s.state === 'denied') { setHint('Mic blocked — allow it in your browser.'); voiceOff(); }
     else if (s.state === 'off') setHint('');
     else if (s.state === 'error' && s.detail && s.detail !== 'no-speech') setHint(`Mic: ${s.detail}`);

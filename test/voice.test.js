@@ -30,6 +30,14 @@ test('"roll" is recognised as a roll command', () => {
   assert.deepEqual(parseCommand('please roll the dice'), { type: 'roll' });
 });
 
+test('bare "1" and its variants all resolve to piece 1 (regression)', () => {
+  assert.deepEqual(parseCommand('1'), { type: 'move', number: 1 });
+  assert.deepEqual(parseCommand('one'), { type: 'move', number: 1 });
+  assert.deepEqual(parseCommand('piece 1'), { type: 'move', number: 1 });
+  assert.deepEqual(parseCommand('won'), { type: 'move', number: 1 });
+  assert.deepEqual(parseCommand('juan'), { type: 'move', number: 1 });
+});
+
 test('unrecognised speech returns null', () => {
   assert.equal(parseCommand('hello there'), null);
   assert.equal(parseCommand('move it'), null);
