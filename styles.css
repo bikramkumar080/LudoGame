@@ -137,7 +137,6 @@ html, body {
 .home-yellow { background: var(--yellow); }
 .home-blue { background: var(--blue); }
 
-.base { box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.05); }
 .base-red { background: var(--red); }
 .base-green { background: var(--green); }
 .base-yellow { background: var(--yellow); }
