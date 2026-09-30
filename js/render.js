@@ -99,7 +99,7 @@ export function buildBoard(boardEl) {
 
 // Draw/refresh tokens. Elements are reused across calls so CSS transitions
 // animate position changes (the sliding movement).
-export function drawTokens(layer, g, movableIds, onTokenClick) {
+export function drawTokens(layer, g, movableIds, onTokenClick, hintId = null) {
   // Group by cell so stacked tokens can be fanned out.
   const byCell = new Map();
   for (const t of g.tokens) {
@@ -124,7 +124,8 @@ export function drawTokens(layer, g, movableIds, onTokenClick) {
         layer._els.set(t.id, el);
       }
       const movable = movableIds.has(t.id);
-      el.className = `token token-${t.color}${movable ? ' movable' : ''}`;
+      const hinted = t.id === hintId;
+      el.className = `token token-${t.color}${movable ? ' movable' : ''}${hinted ? ' hint' : ''}`;
 
       const spread = group.length > 1 ? 20 : 0;
       const angle = (i / group.length) * Math.PI * 2 - Math.PI / 2;

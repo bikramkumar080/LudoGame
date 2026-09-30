@@ -20,6 +20,7 @@ const els = {
   startBtn: $('#startBtn'),
   resumeBtn: $('#resumeBtn'),
   autoRoll: $('#autoRoll'),
+  hints: $('#hints'),
   playerModes: $('#playerModes'),
   turnInfo: $('#turnInfo'),
   die: $('#die'),
@@ -101,7 +102,9 @@ function render() {
   // Only offer tokens when it's genuinely the player's moment to pick one.
   const canPick = g.phase === 'moving' && !busy;
   const movable = new Set(canPick ? legalTokens(g).map((t) => t.id) : []);
-  drawTokens(layer, g, movable, onTokenClick);
+  // Suggest a move for a human player when hints are on.
+  const hintId = (canPick && g.hints && !isCpuTurn(g)) ? chooseMove(g)?.id : null;
+  drawTokens(layer, g, movable, onTokenClick, hintId);
 
   const manualRoll = !g.autoRoll && g.phase === 'rolling';
   els.rollBtn.disabled = !manualRoll || busy;
@@ -350,6 +353,7 @@ function startGame() {
   sound.click();
   const count = Number(document.querySelector('input[name="players"]:checked').value);
   g = createGame(count, els.autoRoll.checked, readPlayerModes());
+  g.hints = els.hints.checked;
   layer = buildBoard(els.board);
   els.setup.classList.add('hidden');
   els.game.classList.remove('hidden');
