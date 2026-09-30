@@ -4,6 +4,7 @@ import { buildBoard, drawTokens } from './render.js';
 import {
   createGame, currentColor, roll, legalTokens, targetPos,
   applyCapture, hasWon, nextTurn, tokensOf, soleMoveToken, remainingPlayers,
+  grantsBonus,
 } from './game.js';
 import { chooseMove, isCpuTurn } from './ai.js';
 import { PLAYER_SETS } from './board.js';
@@ -263,12 +264,16 @@ function performMove(token) {
       return;
     }
 
-    if (g.dice === 6) {
+    if (grantsBonus(finished, g.dice)) {
+      const reason = finished && g.dice === 6 ? 'Home and a 6'
+        : finished ? 'A token reached home'
+        : 'Rolled a 6';
       g.phase = 'rolling';
       g.dice = null;
-      g.message += ' Rolled a 6 — go again!';
+      g.message += ` ${reason} — go again!`;
       renderDie(null);
       render();
+      storage.save(g);
       if (g.autoRoll || isCpuTurn(g)) {
         busy = true;
         setTimeout(() => { busy = false; doRoll(); }, 650);

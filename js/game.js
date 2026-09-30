@@ -145,6 +145,11 @@ export function hasWon(g, color) {
   return tokensOf(g, color).every((t) => t.pos === FINISH);
 }
 
+// A player takes another turn after rolling a 6 or sending a token home.
+export function grantsBonus(finished, dice) {
+  return finished === true || dice === 6;
+}
+
 // Colors still in the game (not yet finished). When only one remains, the
 // game is over and that color takes the last placement.
 export function remainingPlayers(g) {

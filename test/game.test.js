@@ -9,6 +9,7 @@ import { START_INDEX, SAFE_INDICES, FINISH } from '../js/board.js';
 import {
   createGame, currentColor, roll, targetPos, legalTokens,
   applyCapture, moveToken, hasWon, nextTurn, soleMoveToken, remainingPlayers,
+  grantsBonus,
 } from '../js/game.js';
 
 const tok = (g, id) => g.tokens.find((t) => t.id === id);
@@ -188,6 +189,14 @@ test('soleMoveToken returns null when there is a genuine choice', () => {
   const g = createGame(4, true); g.dice = 3;
   tok(g, 'red-0').pos = 10; tok(g, 'red-1').pos = 10; tok(g, 'red-2').pos = 20;
   assert.equal(soleMoveToken(g), null);
+});
+
+// ---------- bonus turn ----------
+test('grantsBonus: another turn after a 6 or on sending a token home', () => {
+  assert.equal(grantsBonus(false, 6), true, 'a 6 earns a bonus');
+  assert.equal(grantsBonus(true, 3), true, 'finishing a token earns a bonus');
+  assert.equal(grantsBonus(true, 6), true, 'both at once is still one bonus');
+  assert.equal(grantsBonus(false, 4), false, 'a plain move does not');
 });
 
 // ---------- placements: keep playing for 2nd/3rd/4th ----------
