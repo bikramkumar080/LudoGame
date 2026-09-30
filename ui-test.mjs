@@ -53,9 +53,13 @@ const dist = Math.hypot(
   hub.y + hub.height / 2 - (board.y + board.height / 2));
 ok(dist < board.width * 0.1, 'center hub is near the board centre', `off by ${Math.round(dist)}px`);
 
-// Tokens must have a coloured disc.
-const bg = await page.locator('.token-red > span').first().evaluate((el) => getComputedStyle(el).backgroundImage);
-ok(bg && bg !== 'none', 'red token has a coloured disc', `background: ${bg}`);
+// Tokens must have a visible coloured disc (solid colour or image).
+const disc = await page.locator('.token-red > span').first().evaluate((el) => {
+  const s = getComputedStyle(el); return { color: s.backgroundColor, image: s.backgroundImage };
+});
+const hasColour = (disc.image && disc.image !== 'none') ||
+  (disc.color && disc.color !== 'transparent' && disc.color !== 'rgba(0, 0, 0, 0)');
+ok(hasColour, 'red token has a coloured disc', `color:${disc.color} image:${disc.image}`);
 
 await browser.close();
 console.log(failures ? `\n${failures} UI check(s) failed` : '\nAll UI checks passed');
