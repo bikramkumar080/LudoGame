@@ -187,7 +187,6 @@ function performMove(token) {
 
   busy = true;
   render();
-  voice.speak(`Moving piece ${num}`);
   animateMove(token, dest, () => {
     const { captured, finished } = applyCapture(g, token);
     const parts = [];
