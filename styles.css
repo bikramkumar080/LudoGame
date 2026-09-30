@@ -251,6 +251,29 @@ html, body {
     0 4px 8px rgba(0, 0, 0, 0.5);
 }
 
+/* ---------- Colorblind mode ---------- */
+/* Okabe-Ito-based palette (distinct under common CVD) + a per-color shape so
+   hue is never the only cue. Activated by `body.cb`. */
+body.cb {
+  --red: #d55e00;    /* vermillion */
+  --green: #009e73;  /* bluish green */
+  --yellow: #e69f00; /* orange */
+  --blue: #0072b2;   /* blue */
+}
+.cbmark { display: none; }
+body.cb .cbmark {
+  position: absolute; top: -1px; right: -1px;
+  width: 48%; height: 48%; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(0, 0, 0, 0.8); color: #fff;
+  font-style: normal; line-height: 1; font-size: clamp(7px, 1.5vmin, 11px);
+  z-index: 2;
+}
+.token-red .cbmark::after { content: '\25B2'; }    /* ▲ */
+.token-green .cbmark::after { content: '\25CF'; }   /* ● */
+.token-yellow .cbmark::after { content: '\25A0'; }  /* ■ */
+.token-blue .cbmark::after { content: '\25C6'; }    /* ◆ */
+
 /* ---------- HUD ---------- */
 .hud {
   background: var(--panel);

@@ -20,6 +20,7 @@ const ok = (cond, name, detail = '') => {
 };
 
 await page.goto('http://localhost:8000/', { waitUntil: 'networkidle' });
+await page.locator('#colorblind').check({ force: true }); // input is visually hidden behind its slider
 await page.click('#startBtn');
 await page.waitForSelector('.token');
 await page.waitForTimeout(300);
@@ -60,6 +61,20 @@ const disc = await page.locator('.token-red > span').first().evaluate((el) => {
 const hasColour = (disc.image && disc.image !== 'none') ||
   (disc.color && disc.color !== 'transparent' && disc.color !== 'rgba(0, 0, 0, 0)');
 ok(hasColour, 'red token has a coloured disc', `color:${disc.color} image:${disc.image}`);
+
+// Colorblind mode: body carries .cb and every token shows a shape badge.
+const bodyCb = await page.evaluate(() => document.body.classList.contains('cb'));
+ok(bodyCb, 'colorblind mode adds body.cb');
+
+const markCount = await page.locator('.token .cbmark').count();
+ok(markCount === 16, 'every token has a shape badge', `got ${markCount}`);
+
+const markShown = await page.locator('.token-red .cbmark').first().evaluate((el) => {
+  const box = getComputedStyle(el);
+  const after = getComputedStyle(el, '::after');
+  return box.display !== 'none' && after.content && after.content !== 'none';
+});
+ok(markShown, 'red token shape badge is visible in colorblind mode');
 
 await browser.close();
 console.log(failures ? `\n${failures} UI check(s) failed` : '\nAll UI checks passed');

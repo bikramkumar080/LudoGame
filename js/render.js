@@ -120,6 +120,10 @@ export function drawTokens(layer, g, movableIds, onTokenClick, hintId = null) {
         const disc = document.createElement('span'); // inner disc
         disc.textContent = t.slot + 1;                // piece number 1-4
         el.appendChild(disc);
+        // Per-color shape badge for colorblind mode (hidden unless body.cb).
+        const mark = document.createElement('i');
+        mark.className = 'cbmark';
+        el.appendChild(mark);
         layer.appendChild(el);
         layer._els.set(t.id, el);
       }

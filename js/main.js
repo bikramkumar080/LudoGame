@@ -21,6 +21,7 @@ const els = {
   resumeBtn: $('#resumeBtn'),
   autoRoll: $('#autoRoll'),
   hints: $('#hints'),
+  colorblind: $('#colorblind'),
   playerModes: $('#playerModes'),
   turnInfo: $('#turnInfo'),
   die: $('#die'),
@@ -354,6 +355,8 @@ function startGame() {
   const count = Number(document.querySelector('input[name="players"]:checked').value);
   g = createGame(count, els.autoRoll.checked, readPlayerModes());
   g.hints = els.hints.checked;
+  g.cb = els.colorblind.checked;
+  document.body.classList.toggle('cb', !!g.cb);
   layer = buildBoard(els.board);
   els.setup.classList.add('hidden');
   els.game.classList.remove('hidden');
@@ -367,6 +370,7 @@ function resumeGame() {
   sound.init();
   sound.click();
   g = saved;
+  document.body.classList.toggle('cb', !!g.cb);
   layer = buildBoard(els.board);
   els.setup.classList.add('hidden');
   els.game.classList.remove('hidden');
